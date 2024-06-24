@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchRandomNumber = async (gender) => {
         try {
-            const response = await fetch('/random-number', {
+            const response = await fetch('/api/random-number', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayRandomNumber = async (gender) => {
-        selectionTitle.textContent = gender === 'man' ? '남자 번호를 선택하세요' : '여자 번호를 선택하세요';
+        selectionTitle.textContent = gender === 'man' ? '' : '';
         const number = await fetchRandomNumber(gender);
         if (number !== undefined) {
             selectedNumber.textContent = `선택된 번호: ${number}`;
@@ -33,11 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    manBtn.addEventListener('click', () => {
-        displayRandomNumber('man');
+    const disableButtons = () => {
+        manBtn.disabled = true;
+        womanBtn.disabled = true;
+    };
+
+    manBtn.addEventListener('click', async () => {
+        await displayRandomNumber('man');
+        disableButtons();
     });
 
-    womanBtn.addEventListener('click', () => {
-        displayRandomNumber('woman');
+    womanBtn.addEventListener('click', async () => {
+        await displayRandomNumber('woman');
+        disableButtons();
     });
 });

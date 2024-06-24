@@ -31,26 +31,7 @@ const getAllNumbers = (gender) => {
     });
 };
 
-const clearDatabase = () => {
-    return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            db.run("DELETE FROM man", (err) => {
-                if (err) {
-                    return reject(err);
-                }
-            });
-            db.run("DELETE FROM woman", (err) => {
-                if (err) {
-                    return reject(err);
-                }
-            });
-            resolve();
-        });
-    });
-};
-
 module.exports = {
     insertNumber,
-    getAllNumbers,
-    clearDatabase
+    getAllNumbers
 };

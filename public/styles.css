@@ -1,16 +1,22 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f0f0f0;
+html, body {
+    height: 100%;
     margin: 0;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
 .container {
+    flex: 1;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .seating-chart {
@@ -34,10 +40,16 @@ button {
     display: none;
 }
 
+#selectedNumber {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d9534f;
+}
+
 footer {
     text-align: center;
-    padding: 0px;
-    background-color: #ffffff;
+    padding: 20px;
+    background-color: #f0f0f0;
     width: 100%;
 }
 

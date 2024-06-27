@@ -1,86 +1,45 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database(':memory:');
+const { insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp, clearDatabase } = require('../database');
 
-// 남자와 여자의 번호 테이블 생성
-db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS man (number INTEGER PRIMARY KEY)");
-    db.run("CREATE TABLE IF NOT EXISTS woman (number INTEGER PRIMARY KEY)");
-    db.run("CREATE TABLE IF NOT EXISTS ip_assignments (ip TEXT PRIMARY KEY, gender TEXT, number INTEGER)");
-});
+module.exports = async (req, res) => {
+    try {
+        if (req.method !== 'POST') {
+            return res.status(405).json({ message: 'Method Not Allowed' });
+        }
 
-const insertNumber = (gender, number) => {
-    return new Promise((resolve, reject) => {
-        const table = gender === 'man' ? 'man' : 'woman';
-        db.run(`INSERT INTO ${table} (number) VALUES (?)`, [number], function(err) {
-            if (err) {
-                return reject(err);
-            }
-            resolve(this.lastID);
-        });
-    });
+        const { gender, uuid } = req.body;
+
+        if (!gender || (gender !== 'man' && gender !== 'woman')) {
+            return res.status(400).send('Invalid gender');
+        }
+
+        if (!uuid) {
+            return res.status(400).send('UUID is required');
+        }
+
+        // Check if the UUID already has an assigned number
+        const existingAssignment = await getNumberByIp(uuid);
+        if (existingAssignment) {
+            return res.json({ number: existingAssignment.number });
+        }
+
+        const usedNumbers = await getAllNumbers(gender);
+        if (usedNumbers.length >= 35) {
+            return res.status(400).send('No numbers left');
+        }
+
+        const number = getRandomNumber(usedNumbers);
+        await insertNumber(gender, number);
+        await assignNumberToIp(uuid, gender, number);
+        res.json({ number });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 };
 
-const getAllNumbers = (gender) => {
-    return new Promise((resolve, reject) => {
-        const table = gender === 'man' ? 'man' : 'woman';
-        db.all(`SELECT number FROM ${table}`, [], (err, rows) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(rows.map(row => row.number));
-        });
-    });
-};
-
-const assignNumberToIp = (ip, gender, number) => {
-    return new Promise((resolve, reject) => {
-        db.run(`INSERT INTO ip_assignments (ip, gender, number) VALUES (?, ?, ?)`, [ip, gender, number], function(err) {
-            if (err) {
-                return reject(err);
-            }
-            resolve(this.lastID);
-        });
-    });
-};
-
-const getNumberByIp = (ip) => {
-    return new Promise((resolve, reject) => {
-        db.get(`SELECT * FROM ip_assignments WHERE ip = ?`, [ip], (err, row) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(row);
-        });
-    });
-};
-
-const clearDatabase = () => {
-    return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            db.run("DELETE FROM man", (err) => {
-                if (err) {
-                    return reject(err);
-                }
-            });
-            db.run("DELETE FROM woman", (err) => {
-                if (err) {
-                    return reject(err);
-                }
-            });
-            db.run("DELETE FROM ip_assignments", (err) => {
-                if (err) {
-                    return reject(err);
-                }
-            });
-            resolve();
-        });
-    });
-};
-
-module.exports = {
-    insertNumber,
-    getAllNumbers,
-    assignNumberToIp,
-    getNumberByIp,
-    clearDatabase
+const getRandomNumber = (usedNumbers) => {
+    let number;
+    do {
+        number = Math.floor(Math.random() * 35) + 1;
+    } while (usedNumbers.includes(number));
+    return number;
 };

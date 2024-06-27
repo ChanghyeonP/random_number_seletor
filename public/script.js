@@ -5,6 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectionTitle = document.getElementById('selectionTitle');
     const selectedNumber = document.getElementById('selectedNumber');
 
+    // UUID 생성 함수
+    const generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
+    // Local Storage에서 UUID 가져오기 또는 새로 생성
+    let uuid = localStorage.getItem('uuid');
+    if (!uuid) {
+        uuid = generateUUID();
+        localStorage.setItem('uuid', uuid);
+    }
+
     const fetchRandomNumber = async (gender) => {
         try {
             const response = await fetch('/api/random-number', {
@@ -12,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ gender })
+                body: JSON.stringify({ gender, uuid })
             });
             if (!response.ok) {
                 throw new Error(await response.text());
@@ -25,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayRandomNumber = async (gender) => {
-        selectionTitle.textContent = gender === 'man' ? '' : '';
+        selectionTitle.textContent = gender === 'man' ? '남자 번호를 선택하세요' : '여자 번호를 선택하세요';
         const number = await fetchRandomNumber(gender);
         if (number !== undefined) {
             selectedNumber.textContent = `선택된 번호: ${number}`;
@@ -33,18 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const disableButtons = () => {
-        manBtn.disabled = true;
-        womanBtn.disabled = true;
-    };
-
-    manBtn.addEventListener('click', async () => {
-        await displayRandomNumber('man');
-        disableButtons();
+    manBtn.addEventListener('click', () => {
+        displayRandomNumber('man');
     });
 
-    womanBtn.addEventListener('click', async () => {
-        await displayRandomNumber('woman');
-        disableButtons();
+    womanBtn.addEventListener('click', () => {
+        displayRandomNumber('woman');
     });
 });

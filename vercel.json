@@ -1,12 +1,7 @@
 {
   "version": 2,
   "env": {
-    "DATABASE_URL": "@database-url" 
-  },
-  "functions": {
-    "api/random-number.js": {
-      "runtime": "vercel/node@16"
-    }
+    "DATABASE_URL": "/Users/parkchanghyeon/Desktop/random-number-selector/database.js" 
   },
   "routes": [
     {

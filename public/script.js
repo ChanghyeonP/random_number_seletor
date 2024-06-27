@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayRandomNumber = async (gender) => {
-        selectionTitle.textContent = gender === 'man' ? '남자 번호를 선택하세요' : '여자 번호를 선택하세요';
+        selectionTitle.textContent = gender === 'man' ? '' : '';
         const number = await fetchRandomNumber(gender);
         if (number !== undefined) {
             selectedNumber.textContent = `선택된 번호: ${number}`;

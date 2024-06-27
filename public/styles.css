@@ -34,8 +34,22 @@ button {
     display: none;
 }
 
-#selectedNumber {
-    font-size: 24px;
-    font-weight: bold;
-    color: #d9534f;
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #e0e0e0;
+    width: 100%;
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const cron = require('node-cron');
-const { insertNumber, getAllNumbers } = require('../database');
+const { insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp, clearDatabase } = require('../database');
 
 const app = express();
 app.use(cors());
@@ -18,11 +18,19 @@ const getRandomNumber = (usedNumbers) => {
 
 app.post('/api/random-number', async (req, res) => {
     const { gender } = req.body;
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
     if (!gender || (gender !== 'man' && gender !== 'woman')) {
         return res.status(400).send('Invalid gender');
     }
 
     try {
+        // Check if the IP already has an assigned number
+        const existingAssignment = await getNumberByIp(ip);
+        if (existingAssignment) {
+            return res.json({ number: existingAssignment.number });
+        }
+
         const usedNumbers = await getAllNumbers(gender);
         if (usedNumbers.length >= 35) {
             return res.status(400).send('No numbers left');
@@ -30,32 +38,14 @@ app.post('/api/random-number', async (req, res) => {
 
         const number = getRandomNumber(usedNumbers);
         await insertNumber(gender, number);
+        await assignNumberToIp(ip, gender, number);
         res.json({ number });
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
 
-app.post('/api/choose-number', async (req, res) => {
-    const { gender, number } = req.body;
-    if (!gender || (gender !== 'man' && gender !== 'woman')) {
-        return res.status(400).send('Invalid gender');
-    }
-
-    try {
-        const usedNumbers = await getAllNumbers(gender);
-        if (usedNumbers.includes(number)) {
-            return res.status(400).send('Number already chosen');
-        }
-
-        await insertNumber(gender, number);
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
-
-// 매일 12시에 데이터베이스 초기화
+// 매일 자정에 데이터베이스 초기화 (12:00 AM)
 cron.schedule('0 0 * * *', async () => {
     try {
         await clearDatabase();

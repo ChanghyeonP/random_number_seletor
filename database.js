@@ -5,6 +5,7 @@ const db = new sqlite3.Database(':memory:');
 db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS man (number INTEGER PRIMARY KEY)");
     db.run("CREATE TABLE IF NOT EXISTS woman (number INTEGER PRIMARY KEY)");
+    db.run("CREATE TABLE IF NOT EXISTS ip_assignments (ip TEXT PRIMARY KEY, gender TEXT, number INTEGER)");
 });
 
 const insertNumber = (gender, number) => {
@@ -31,7 +32,55 @@ const getAllNumbers = (gender) => {
     });
 };
 
+const assignNumberToIp = (ip, gender, number) => {
+    return new Promise((resolve, reject) => {
+        db.run(`INSERT INTO ip_assignments (ip, gender, number) VALUES (?, ?, ?)`, [ip, gender, number], function(err) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(this.lastID);
+        });
+    });
+};
+
+const getNumberByIp = (ip) => {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT * FROM ip_assignments WHERE ip = ?`, [ip], (err, row) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(row);
+        });
+    });
+};
+
+const clearDatabase = () => {
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            db.run("DELETE FROM man", (err) => {
+                if (err) {
+                    return reject(err);
+                }
+            });
+            db.run("DELETE FROM woman", (err) => {
+                if (err) {
+                    return reject(err);
+                }
+            });
+            db.run("DELETE FROM ip_assignments", (err) => {
+                if (err) {
+                    return reject(err);
+                }
+            });
+            resolve();
+        });
+    });
+};
+
 module.exports = {
     insertNumber,
-    getAllNumbers
+    getAllNumbers,
+    assignNumberToIp,
+    getNumberByIp,
+    clearDatabase
 };

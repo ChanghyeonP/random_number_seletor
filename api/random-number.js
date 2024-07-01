@@ -1,4 +1,4 @@
-const { insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp, clearDatabase } = require('../database');
+const { getNextNumber, insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp } = require('../database');
 
 module.exports = async (req, res) => {
     try {
@@ -16,7 +16,6 @@ module.exports = async (req, res) => {
             return res.status(400).send('UUID is required');
         }
 
-        // Check if the UUID already has an assigned number
         const existingAssignment = await getNumberByIp(uuid);
         if (existingAssignment) {
             return res.json({ number: existingAssignment.number });
@@ -27,19 +26,11 @@ module.exports = async (req, res) => {
             return res.status(400).send('No numbers left');
         }
 
-        const number = getRandomNumber(usedNumbers);
+        const number = await getNextNumber(gender);
         await insertNumber(gender, number);
         await assignNumberToIp(uuid, gender, number);
         res.json({ number });
     } catch (error) {
         res.status(500).send(error.message);
     }
-};
-
-const getRandomNumber = (usedNumbers) => {
-    let number;
-    do {
-        number = Math.floor(Math.random() * 35) + 1;
-    } while (usedNumbers.includes(number));
-    return number;
 };

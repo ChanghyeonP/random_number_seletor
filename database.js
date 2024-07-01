@@ -8,6 +8,19 @@ db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS ip_assignments (ip TEXT PRIMARY KEY, gender TEXT, number INTEGER)");
 });
 
+const getNextNumber = (gender) => {
+    return new Promise((resolve, reject) => {
+        const table = gender === 'man' ? 'man' : 'woman';
+        db.get(`SELECT MAX(number) AS max_number FROM ${table}`, (err, row) => {
+            if (err) {
+                return reject(err);
+            }
+            const nextNumber = (row && row.max_number ? row.max_number : 0) + 1;
+            resolve(nextNumber);
+        });
+    });
+};
+
 const insertNumber = (gender, number) => {
     return new Promise((resolve, reject) => {
         const table = gender === 'man' ? 'man' : 'woman';
@@ -78,6 +91,7 @@ const clearDatabase = () => {
 };
 
 module.exports = {
+    getNextNumber,
     insertNumber,
     getAllNumbers,
     assignNumberToIp,

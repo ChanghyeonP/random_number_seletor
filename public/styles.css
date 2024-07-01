@@ -103,16 +103,13 @@ footer {
 }
 
 .man-selected {
-    background-color: blue;
-    color: white;
-}
-
-.woman-selected {
-    background-color: pink;
+    background-color: #a6ffad;
     color: black;
 }
 
-.both-selected {
-    background-color: green;
-    color: white;
+.woman-selected {
+    background-color: #a6ffad;
+    color: black;
 }
+
+

@@ -1,3 +1,4 @@
+
 html, body {
     height: 100%;
     margin: 0;
@@ -64,4 +65,39 @@ footer {
     width: 50px;
     height: 50px;
     margin-right: 10px;
+}
+.header {
+    background-color: #a6ffad;
+    color: black;
+    font-size: 24px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    border: 1px solid black;
+    width: 75%;
+    justify-content: center;
+}
+
+.table-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.number-table {
+    border-collapse: collapse;
+    width: auto;
+    background-color: #ffffff;
+}
+
+.number-table th, .number-table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.number-table th {
+    background-color: #ffffff;
+    color: black;
 }

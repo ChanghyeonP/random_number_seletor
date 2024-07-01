@@ -1,7 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(':memory:');
 
-// 남자와 여자의 번호 테이블 생성
 db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS man (number INTEGER PRIMARY KEY)");
     db.run("CREATE TABLE IF NOT EXISTS woman (number INTEGER PRIMARY KEY)");

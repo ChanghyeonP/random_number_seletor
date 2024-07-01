@@ -1,4 +1,4 @@
-const { getNextNumber, insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp } = require('../database');
+const { getNextNumber, insertNumber, getAllNumbers, assignNumberToIp, getNumberByIp } = require('./database');
 
 module.exports = async (req, res) => {
     try {
@@ -31,6 +31,7 @@ module.exports = async (req, res) => {
         await assignNumberToIp(uuid, gender, number);
         res.json({ number });
     } catch (error) {
+        console.error(error); // Log the error
         res.status(500).send(error.message);
     }
 };

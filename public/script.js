@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const numberContainer = document.getElementById('numberContainer');
     const selectionTitle = document.getElementById('selectionTitle');
     const selectedNumber = document.getElementById('selectedNumber');
+    const cells = document.querySelectorAll('td[data-number]');
 
-    // UUID 생성 함수
     const generateUUID = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Local Storage에서 UUID 가져오기 또는 새로 생성
     let uuid = localStorage.getItem('uuid');
     if (!uuid) {
         uuid = generateUUID();
@@ -40,11 +39,29 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayRandomNumber = async (gender) => {
-        selectionTitle.textContent = gender === 'man' ? '' : '';
+        selectionTitle.textContent = gender === 'man' ? '남자' : '여자';
         const number = await fetchRandomNumber(gender);
         if (number !== undefined) {
             selectedNumber.textContent = `선택된 번호: ${number}`;
             numberContainer.classList.remove('hidden');
+            highlightNumber(number, gender);
+        }
+    };
+
+    const highlightNumber = (number, gender) => {
+        const cell = document.querySelector(`td[data-number="${number}"]`);
+        if (cell) {
+            if (cell.classList.contains('man-selected') && gender === 'woman') {
+                cell.classList.remove('man-selected');
+                cell.classList.add('both-selected');
+            } else if (cell.classList.contains('woman-selected') && gender === 'man') {
+                cell.classList.remove('woman-selected');
+                cell.classList.add('both-selected');
+            } else if (gender === 'man') {
+                cell.classList.add('man-selected');
+            } else if (gender === 'woman') {
+                cell.classList.add('woman-selected');
+            }
         }
     };
 
